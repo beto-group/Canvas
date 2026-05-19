@@ -1,6 +1,5 @@
 // Get the React hooks from the 'dc' object provided by the Datacore plugin.
 const { useState, useRef, useEffect, useCallback } = dc;
-const h = React.createElement;
 
 // --- UTILITY FUNCTIONS (For Full-Tab Logic) ---
 function findNearestAncestorWithClass(element, className) { if (!element) return null; let current = element.parentNode; while (current) { if (current.classList && current.classList.contains(className)) { return current; } current = current.parentNode; } return null; }
@@ -501,6 +500,7 @@ function CanvasView() {
 
     useEffect(() => {
         const container = containerRef.current; if (!container) return;
+        const styleId = `impeccable-status-canvas`;
         if (isFullTab) {
             if (!container.parentNode) { setTimeout(() => setIsFullTab(true), 50); return; }
             const target = findNearestAncestorWithClass(container, 'workspace-leaf-content');
@@ -513,27 +513,33 @@ function CanvasView() {
             content.appendChild(container);
             Object.assign(container.style, { position: "absolute", top: "0", left: "0", width: "100%", height: "100%", zIndex: "9998" });
 
-            // Inject stylesheet to hide status-bar and view-footers in FullTab mode
-            const styleEl = document.createElement("style");
-            styleEl.id = `fulltab-style-hide-${uniqueWrapperClass}`;
-            styleEl.textContent = `
-              .status-bar, 
-              .view-footer, 
-              .workspace-leaf-content-footer { 
-                display: none !important; 
-              }
-            `;
-            document.head.appendChild(styleEl);
+            // Inject status bar suppression stylesheet
+            let styleEl = document.getElementById(styleId);
+            if (!styleEl) {
+                styleEl = document.createElement('style');
+                styleEl.id = styleId;
+                styleEl.innerHTML = `
+                    .status-bar, .view-footer, .workspace-leaf-content-footer { 
+                        display: none !important; 
+                    }
+                    .workspace-leaf-content { 
+                        padding: 0 !important; 
+                        margin: 0 !important; 
+                        border-radius: 0 !important; 
+                    }
+                `;
+                document.head.appendChild(styleEl);
+            }
         }
         return () => {
-            // Remove injected stylesheet
-            const injectedStyle = document.getElementById(`fulltab-style-hide-${uniqueWrapperClass}`);
-            if (injectedStyle) injectedStyle.remove();
-
             if (!stateRefs.originalParent) return;
             stateRefs.placeholder?.parentNode?.replaceChild(container, stateRefs.placeholder);
             if (stateRefs.parentPosition?.el) stateRefs.parentPosition.el.style.position = stateRefs.parentPosition.pos || '';
             container.removeAttribute("style");
+
+            const el = document.getElementById(styleId);
+            if (el) el.remove();
+
             Object.keys(stateRefs).forEach(key => stateRefs[key] = null);
         };
     }, [isFullTab]);
