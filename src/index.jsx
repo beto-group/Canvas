@@ -25,6 +25,30 @@ async function View({ folderPath, dc, ...props }) {
     }
   };
 
+  class ErrorBoundary extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = { hasError: false, error: null };
+    }
+    static getDerivedStateFromError(error) {
+      return { hasError: true, error };
+    }
+    componentDidCatch(error, errorInfo) {
+      console.error("[ErrorBoundary] Caught error:", error, errorInfo);
+    }
+    render() {
+      if (this.state.hasError) {
+        return (
+          <div style={{ color: "red", padding: "40px", background: "var(--background-primary)", height: "100vh", overflow: "auto" }}>
+            <h2 style={{ color: "var(--text-error)" }}>Render Error</h2>
+            <pre style={{ fontSize: "12px", color: "var(--text-error-alt)" }}>{this.state.error?.stack || this.state.error?.message}</pre>
+          </div>
+        );
+      }
+      return this.props.children;
+    }
+  }
+
   const SafeRoot = () => {
     const [modules, setModules] = dc.useState(null);
     const [error, setError] = dc.useState(null);
@@ -76,7 +100,9 @@ async function View({ folderPath, dc, ...props }) {
     const { InfiniteCanvas: MainApp } = modules;
     return (
       <div id="datacore-component-root" style={{ width: "100%", height: "100%" }}>
-        <MainApp folderPath={folderPath} dc={dc} saveState="ShowcaseCanvas" {...props} />
+        <ErrorBoundary>
+          <MainApp folderPath={folderPath} dc={dc} saveState="ShowcaseCanvas" {...props} />
+        </ErrorBoundary>
       </div>
     );
   };
