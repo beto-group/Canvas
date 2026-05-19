@@ -14,6 +14,7 @@ const log = (...args) => DEBUG_MODE && console.log(...args);
 
 
 const { useState, useRef, useEffect, useCallback, Fragment } = dc;
+const h = dc.React.createElement;
 
 const ZOOM_SPEED = 0.05;
 const PAN_SPEED = 0.5;
