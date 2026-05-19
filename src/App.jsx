@@ -1,6 +1,6 @@
 // Get the React hooks from the 'dc' object provided by the Datacore plugin.
 const { useState, useRef, useEffect, useCallback } = dc;
-const h = dc.React.createElement;
+const h = React.createElement;
 
 // --- UTILITY FUNCTIONS (For Full-Tab Logic) ---
 function findNearestAncestorWithClass(element, className) { if (!element) return null; let current = element.parentNode; while (current) { if (current.classList && current.classList.contains(className)) { return current; } current = current.parentNode; } return null; }
