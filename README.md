@@ -22,23 +22,23 @@
 <img src="assets/canvas.clip.gif" alt="Canvas Walkthrough" width="100%">
 
 <div align="center">
-  <p><em>An infinite, zoomable, and pannable canvas workspace designed to sandbox, render, and configure live Datacore components.</em></p>
+  <p><em>An advanced interactive canvas component that lets you create, link, and manage nodes in a zoomable, pannable infinite workspace.</em></p>
 </div>
 
 ## Overview
 
-Canvas is an advanced workspace component that provides a limitless 2D layout environment. It acts as a sandbox, allowing you to load any Datacore components dynamically by file name, adjust their custom props on the fly via a floating edit panel, and drag or resize them freely. State persistence lets you save and restore full canvas configurations inside the vault's `.datacore` space.
+Canvas (Version 2) is a visual node modeling workspace. It allows you to place custom nodes onto an infinite plane, draw connecting bezier links between them, undo or redo actions, select multiple items, and toggle between editing and pan navigations. It fully conforms to Obsidian UI themes and supports local vault save/load routines.
 
 ## Features
 
-### Infinite Navigation & Grid Layout
-Limitless 2D workspace with fluid panning (Spacebar + Drag) and mouse wheel zooming. Features an adaptive visual grid mapping minor, major, and super lines whose opacity adjusts dynamically based on the current scale.
+### Bezier Node Connection
+Draw connections dynamically by dragging between output and input anchors. Bezier paths are updated in real-time as nodes are repositioned or deleted.
 
-### Dynamic Sandboxing & Live Compilation
-Loads custom Datacore components dynamically from your vault using fuzzy name matches. Includes an active prop manager to configure component arguments in real-time, plus a MutationObserver constraint to prevent nested sandbox scripts from leaking.
+### Navigation Modes & Toolbar controls
+Seamlessly toggle between Pan mode (hand tool) and Select mode. A persistent, blurred glassmorphism toolbar provides fast access to Undo/Redo queues, Save commands, and File browser lists.
 
-### Complete Interaction Stack
-Supports multi-select ranges, rectangular marquee selections, box resizing anchors, and standard clipboard keys (Copy, Paste, Cut, Delete). Offers immersive display configurations via ScreenModeHelper (Fullscreen, Panel, PiP).
+### Workspace & State Actions
+Saves full node topologies, coordinates, connections, and metadata directly inside `.datacore` settings files. Supports viewport state recovery on launch.
 
 ## Directory Index
 
@@ -46,7 +46,7 @@ The package exposes the following compiled files:
 
 | File | Description |
 | :--- | :--- |
-| **[CANVAS.md](CANVAS.md)** | The Obsidian runner wrapper to launch the Canvas canvas workspace. |
+| **[CANVAS.md](CANVAS.md)** | The Obsidian runner wrapper to launch the Canvas workspace. |
 | **[src/index.jsx](src/index.jsx)** | Main bootstrapper and view coordinator loading index exports. |
 | **[src/App.jsx](src/App.jsx)** | Coordinator containing the viewport interaction engine and controls logic. |
 | **[METADATA.md](METADATA.md)** | Manifest containing taxonomy details and environment settings. |
