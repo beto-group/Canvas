@@ -1,8 +1,10 @@
 /**
  * CANVAS - Index Factory
- * Standard Datacore View Factory with Safe Agent recovery.
+ * Standard Datacore View Factory with Safe Agent recovery and immersive FullTab stylesheet injector.
  */
 async function View({ folderPath, dc, ...props }) {
+  const STYLE_ID = "impeccable-status-canvas";
+
   const Agent = {
     timer: null,
     start: (fPath, onReload) => {
@@ -25,35 +27,37 @@ async function View({ folderPath, dc, ...props }) {
     }
   };
 
-  class ErrorBoundary extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = { hasError: false, error: null };
-    }
-    static getDerivedStateFromError(error) {
-      return { hasError: true, error };
-    }
-    componentDidCatch(error, errorInfo) {
-      console.error("[ErrorBoundary] Caught error:", error, errorInfo);
-    }
-    render() {
-      if (this.state.hasError) {
-        return (
-          <div style={{ color: "red", padding: "40px", background: "var(--background-primary)", height: "100vh", overflow: "auto" }}>
-            <h2 style={{ color: "var(--text-error)" }}>Render Error</h2>
-            <pre style={{ fontSize: "12px", color: "var(--text-error-alt)" }}>{this.state.error?.stack || this.state.error?.message}</pre>
-          </div>
-        );
-      }
-      return this.props.children;
-    }
-  }
-
   const SafeRoot = () => {
     const [modules, setModules] = dc.useState(null);
     const [error, setError] = dc.useState(null);
     const [key, setKey] = dc.useState(0);
 
+    // --- Immersive FullTab: Status Bar & Footer Suppression ---
+    dc.useEffect(() => {
+      let styleEl = document.getElementById(STYLE_ID);
+      if (!styleEl) {
+        styleEl = document.createElement("style");
+        styleEl.id = STYLE_ID;
+        styleEl.innerHTML = `
+          /* CANVAS: Hide global status bar and view footers for immersive full-tab layout */
+          .status-bar, .view-footer, .workspace-leaf-content-footer {
+            display: none !important;
+          }
+          .workspace-leaf-content {
+            padding: 0 !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      }
+      return () => {
+        const el = document.getElementById(STYLE_ID);
+        if (el) el.remove();
+      };
+    }, []);
+
+    // --- Agent Watch Daemon ---
     dc.useEffect(() => {
       return Agent.start(folderPath, () => {
         if (dc.app.workspace.activeLeaf?.rebuildView) {
@@ -64,6 +68,7 @@ async function View({ folderPath, dc, ...props }) {
       });
     }, []);
 
+    // --- Module Loader ---
     dc.useEffect(() => {
       const load = async () => {
         try {
@@ -100,9 +105,7 @@ async function View({ folderPath, dc, ...props }) {
     const { InfiniteCanvas: MainApp } = modules;
     return (
       <div id="datacore-component-root" style={{ width: "100%", height: "100%" }}>
-        <ErrorBoundary>
-          <MainApp folderPath={folderPath} dc={dc} saveState="ShowcaseCanvas" {...props} />
-        </ErrorBoundary>
+        <MainApp folderPath={folderPath} dc={dc} saveState="ShowcaseCanvas" {...props} />
       </div>
     );
   };
