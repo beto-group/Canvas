@@ -87,10 +87,11 @@ async function View({ folderPath, dc, ...props }) {
     }, [key]);
 
     if (error) {
+      const errMsg = error?.stack || error?.message || (typeof error === "string" ? error : JSON.stringify(error, null, 2));
       return (
         <div style={{ color: "red", padding: "40px", background: "var(--background-primary)", height: "100vh" }}>
           <h2 style={{ color: "var(--text-error)" }}>Critical Load Error</h2>
-          <pre style={{ fontSize: "12px", color: "var(--text-error-alt)" }}>{error.stack}</pre>
+          <pre style={{ fontSize: "12px", color: "var(--text-error-alt)", whiteSpace: "pre-wrap", wordBreak: "break-all" }}>{errMsg}</pre>
         </div>
       );
     }
