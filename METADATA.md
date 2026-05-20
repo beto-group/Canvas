@@ -1,18 +1,17 @@
 ---
 author: beto.group
 contributor: []
-version: 2.0.0
-id: canvas-mindmap-888
+version: 4.0.4
+id: obsidian-infinite-canvas-999
 name: CANVAS
-description: An advanced interactive canvas component that lets you create, link, and manage nodes in a zoomable, pannable infinite workspace. Perfect for mind mapping, visual note-taking, and workflow design.
+description: An infinite layout canvas featuring vector shapes, subcomponent loader panels, screen mode adjustments, and file-based state serialization.
 status: stable
 complexity: advanced
 category:
   - Developer Tools
-  - Workspace
-  - Layout
+  - Window Management
 compatibility:
-  - Obsidian >=1.4.11
+  - Obsidian >=1.5.0
 repository:
   - https://github.com/beto-group/Canvas
 missing: []
@@ -22,7 +21,7 @@ resources:
 type: DatacoreComponent
 target: Datacore
 security:
-  - NodeFS
+  - Sandboxed
 storage:
   - Frontmatter
 network: Offline

@@ -1,27 +1,18 @@
 # Contributing to Canvas
 
-Welcome! This document outlines the core developer standards, dynamically loaded dependencies, and architectural patterns required to maintain the advanced implementation of the Canvas component.
-
----
+Welcome! This document outlines the developer standards, code architecture patterns, and contribution guidelines for the Canvas component.
 
 ## Core Architecture Pillars
 
-1. **Dynamic Sandbox Component Rendering**:
-   * Enables users to load and interact with any other Datacore component within isolated "boxes" on the infinite canvas.
-   * Utilizes dynamic imports and standard prop mapping to inject parameters dynamically.
+1.  **Infinite Coordinate Panning**:
+    *   Coordinate math transforms screen mouse positions to absolute canvas world coordinates using linear scaling.
+    *   State updates are batched to prevent visual jitter.
+2.  **Anti-Bleed Style Isolation**:
+    *   All UI styles are encapsulated inside class namespaces (`.edit-panel`, `.burger-menu-button`) to prevent style interference with global Obsidian workspace themes.
+3.  **Sterile Zero-Dependency Design**:
+    *   Relies strictly on React/Preact hooks provided by the `dc` host environment.
 
-2. **Infinite Navigation & Focus Lock**:
-   * Implements custom interaction hooks (spacebar dragging, Ctrl/Cmd wheel zoom, marquee multi-select) with focus locking to prevent standard Obsidian hotkeys from interfering.
-   * Manages absolute coordinates and scale bounds to translate screen mouse movements to canvas world space.
+## Local Development Loop
 
-3. **Banned Emojis in React UI**:
-   * Emojis are strictly prohibited inside the user interface to ensure a modern, premium appearance.
-   * Any control toolbar options, modal buttons, or status indicators MUST be wired directly to Lucide vectors using the built-in `<dc.Icon>` component or plain text.
-
----
-
-## Local Compilation and Developer Loop
-
-* **Logic Entry Point**: All component coordinates and React views reside in `src/App.jsx`.
-* **Index Factory**: The bootstrapper/loader hook that handles namespaces and builds the view resides in `src/index.jsx`.
-* **Hot Reload Trigger**: Invoke `dc.app.workspace.activeLeaf.rebuildView()` to flush the view cache. The visualizer compiles your changes instantly without a full application restart.
+*   **Watchdog Reload Trigger**: The component listens for changes to `data/mcp_commands.json` and updates the layout immediately.
+*   **HMR Integration**: Any local code edit inside the `src/` directory can be forced to reload using the hot-reload watcher.

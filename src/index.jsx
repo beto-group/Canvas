@@ -1,10 +1,4 @@
-/**
- * CANVAS - Index Factory
- * Standard Datacore View Factory with Safe Agent recovery and immersive FullTab stylesheet injector.
- */
 async function View({ folderPath, dc, ...props }) {
-  const STYLE_ID = "impeccable-status-canvas";
-
   const Agent = {
     timer: null,
     start: (fPath, onReload) => {
@@ -32,32 +26,6 @@ async function View({ folderPath, dc, ...props }) {
     const [error, setError] = dc.useState(null);
     const [key, setKey] = dc.useState(0);
 
-    // --- Immersive FullTab: Status Bar & Footer Suppression ---
-    dc.useEffect(() => {
-      let styleEl = document.getElementById(STYLE_ID);
-      if (!styleEl) {
-        styleEl = document.createElement("style");
-        styleEl.id = STYLE_ID;
-        styleEl.innerHTML = `
-          /* CANVAS: Hide global status bar and view footers for immersive full-tab layout */
-          .status-bar, .view-footer, .workspace-leaf-content-footer {
-            display: none !important;
-          }
-          .workspace-leaf-content {
-            padding: 0 !important;
-            margin: 0 !important;
-            border-radius: 0 !important;
-          }
-        `;
-        document.head.appendChild(styleEl);
-      }
-      return () => {
-        const el = document.getElementById(STYLE_ID);
-        if (el) el.remove();
-      };
-    }, []);
-
-    // --- Agent Watch Daemon ---
     dc.useEffect(() => {
       return Agent.start(folderPath, () => {
         if (dc.app.workspace.activeLeaf?.rebuildView) {
@@ -68,7 +36,27 @@ async function View({ folderPath, dc, ...props }) {
       });
     }, []);
 
-    // --- Module Loader ---
+    // Inject status-bar/view-footer suppression stylesheet
+    dc.useEffect(() => {
+      let styleEl = document.getElementById("immersive-status-bar-suppression");
+      if (!styleEl) {
+        styleEl = document.createElement("style");
+        styleEl.id = "immersive-status-bar-suppression";
+        styleEl.textContent = `
+          .status-bar, 
+          .view-footer, 
+          .workspace-leaf-content-footer { 
+            display: none !important; 
+          }
+        `;
+        document.head.appendChild(styleEl);
+      }
+      return () => {
+        const el = document.getElementById("immersive-status-bar-suppression");
+        if (el) el.remove();
+      };
+    }, []);
+
     dc.useEffect(() => {
       const load = async () => {
         try {
@@ -77,7 +65,7 @@ async function View({ folderPath, dc, ...props }) {
             dc.require(base + "/src/App.jsx")
           ]);
           setModules({
-            CanvasView: app.CanvasView
+            InfiniteCanvas: app.InfiniteCanvas
           });
         } catch (e) {
           setError(e);
@@ -87,22 +75,23 @@ async function View({ folderPath, dc, ...props }) {
     }, [key]);
 
     if (error) {
+      const errMsg = error?.stack || error?.message || (typeof error === "string" ? error : JSON.stringify(error, null, 2));
       return (
         <div style={{ color: "red", padding: "40px", background: "var(--background-primary)", height: "100vh" }}>
           <h2 style={{ color: "var(--text-error)" }}>Critical Load Error</h2>
-          <pre style={{ fontSize: "12px", color: "var(--text-error-alt)" }}>{error.stack}</pre>
+          <pre style={{ fontSize: "12px", color: "var(--text-error-alt)", whiteSpace: "pre-wrap", wordBreak: "break-all" }}>{errMsg}</pre>
         </div>
       );
     }
     if (!modules) {
       return (
         <div style={{ padding: "40px", background: "var(--background-primary)", color: "var(--text-muted)", height: "100vh", fontFamily: "monospace" }}>
-          Initializing Canvas Workspace...
+          Initializing Canvas...
         </div>
       );
     }
 
-    const { CanvasView: MainApp } = modules;
+    const { InfiniteCanvas: MainApp } = modules;
     return (
       <div id="datacore-component-root" style={{ width: "100%", height: "100%" }}>
         <MainApp folderPath={folderPath} dc={dc} {...props} />
