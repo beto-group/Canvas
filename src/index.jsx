@@ -1,8 +1,10 @@
 /**
  * CANVAS - Index Factory
- * Standard Datacore View Factory with Safe Agent recovery.
+ * Standard Datacore View Factory with Safe Agent recovery and immersive FullTab stylesheet injector.
  */
 async function View({ folderPath, dc, ...props }) {
+  const STYLE_ID = "impeccable-status-canvas";
+
   const Agent = {
     timer: null,
     start: (fPath, onReload) => {
@@ -30,6 +32,32 @@ async function View({ folderPath, dc, ...props }) {
     const [error, setError] = dc.useState(null);
     const [key, setKey] = dc.useState(0);
 
+    // --- Immersive FullTab: Status Bar & Footer Suppression ---
+    dc.useEffect(() => {
+      let styleEl = document.getElementById(STYLE_ID);
+      if (!styleEl) {
+        styleEl = document.createElement("style");
+        styleEl.id = STYLE_ID;
+        styleEl.innerHTML = `
+          /* CANVAS: Hide global status bar and view footers for immersive full-tab layout */
+          .status-bar, .view-footer, .workspace-leaf-content-footer {
+            display: none !important;
+          }
+          .workspace-leaf-content {
+            padding: 0 !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+          }
+        `;
+        document.head.appendChild(styleEl);
+      }
+      return () => {
+        const el = document.getElementById(STYLE_ID);
+        if (el) el.remove();
+      };
+    }, []);
+
+    // --- Agent Watch Daemon ---
     dc.useEffect(() => {
       return Agent.start(folderPath, () => {
         if (dc.app.workspace.activeLeaf?.rebuildView) {
@@ -40,6 +68,7 @@ async function View({ folderPath, dc, ...props }) {
       });
     }, []);
 
+    // --- Module Loader ---
     dc.useEffect(() => {
       const load = async () => {
         try {
